@@ -1,0 +1,263 @@
+   //David sianov
+    #include <malloc.h>
+    //#include <iostream>
+    #include <stdio.h>
+    //using namespace std;
+
+    typedef double (*VirtualMethodPointer)(void *);
+
+    typedef VirtualMethodPointer * VTableType;
+
+    #define PI 3.14159
+
+    typedef struct 
+    {
+        VTableType VPointer;
+        char *name;
+    }Shape;
+
+    double area()
+    {
+        return 0;
+    }
+
+    void draw()
+    {
+        printf("Shape.draw() You should never see this.\n");
+    }
+   	void myPrint()
+  	{
+	  }	
+
+    VirtualMethodPointer Shape_VTable [] =
+    {
+        (VirtualMethodPointer)area, 
+        (VirtualMethodPointer)draw,
+        (VirtualMethodPointer)myPrint  
+    };
+
+    Shape * Shape_Shape(Shape * _this, char *newName)
+    {
+        _this->VPointer = Shape_VTable;
+        _this->name = newName;
+        return _this;
+    }
+
+// End of Class Shape
+
+// Start of Class 
+
+    typedef struct 
+        // extends Shape
+    {
+        VTableType VPointer;
+        char *name;
+        int myHeight;
+        int myBase;
+    }Triangle;
+
+    double triangle_area(Triangle * _this)
+    {
+        return (_this->myHeight * _this->myBase) / 2.0;
+    }
+    void triangle_draw()
+	  {
+    		printf("*\n");
+    		printf("**\n");
+    		printf("* *\n");
+    		printf("*  *\n");
+    		printf("*   *\n");
+    		printf("*    *\n");
+    		printf("*******\n");
+  	}
+   	void triangle_myPrint(Triangle * _this)
+    {
+		  printf("Height: %d, base: %d\n", _this->myHeight, _this->myBase);
+	  }
+
+    VirtualMethodPointer Triangle_VTable [] =
+    {
+        (VirtualMethodPointer)triangle_area,
+        (VirtualMethodPointer)triangle_draw,
+        (VirtualMethodPointer)triangle_myPrint
+    };
+
+    Triangle * Triangle_Triangle(Triangle * _this,char *_newName, int _myHeight, int _myBase)
+    {
+        Shape_Shape((Shape *)_this, _newName); 
+        _this->VPointer = Triangle_VTable; 
+        _this->myHeight = _myHeight;
+        _this->myBase = _myBase;
+        return _this;
+    }
+
+// End of Class 
+
+
+// Start of Class 
+
+    typedef struct 
+        // extends Shape
+    {
+        VTableType VPointer;
+        char *name;
+        int radius;
+    }Circle;
+
+    double circle_area(Circle * _this)
+    {
+        return _this->radius * _this->radius * PI;
+    }
+    void circle_draw()
+	  {
+    		printf("   ***   \n");
+    		printf(" *     * \n");
+    		printf("*       *\n");
+    		printf("*       *\n");
+    		printf(" *     *\n");
+    		printf("   ***\n");
+  	}
+   	void circle_myPrint(Circle * _this)
+    {
+		   printf("Radius: %d\n", _this->radius);
+	  }
+
+    VirtualMethodPointer Circle_VTable [] =
+    {
+        (VirtualMethodPointer)circle_area,
+        (VirtualMethodPointer)circle_draw,
+        (VirtualMethodPointer)circle_myPrint
+    };
+
+    Circle * Circle_Circle(Circle * _this,char *_newName, int _radius)
+    {
+        Shape_Shape((Shape *)_this, _newName); // call parents constructor
+        _this->VPointer = Circle_VTable; // set the vpointer AFTER parent
+        _this->radius = _radius;
+        return _this;
+    }
+    
+// Start of Class 
+
+    typedef struct 
+        // extends Shape
+    {
+        VTableType VPointer;
+        char *name;
+        int length;
+    }Square;
+
+    double square_area(Square * _this)
+    {
+        return (_this->length * _this->length);
+    }
+    void square_draw()
+	  {
+    	  printf("*********\n");	
+    		printf("*       *\n");
+    		printf("*       *\n");
+    		printf("*       *\n");
+    		printf("*       *\n");
+    		printf("*       *\n");
+    		printf("*********\n");
+  	}
+   	void square_myPrint(Square * _this)
+    {
+		    printf("length: %d\n", _this->length);
+	  }
+
+    VirtualMethodPointer Square_VTable [] =
+    {
+        (VirtualMethodPointer)square_area,
+        (VirtualMethodPointer)square_draw,
+        (VirtualMethodPointer)square_myPrint
+    };
+
+    Square * Square_Square(Square * _this,char *_newName, int l)
+    {
+        Shape_Shape((Shape *)_this, _newName); 
+        _this->VPointer = Square_VTable; 
+        _this->length = l;
+        return _this;
+    }
+
+// End of Class 
+
+// Start of Class 
+
+    typedef struct 
+        // extends Square
+    {
+        VTableType VPointer;
+        char *name;
+        int length;
+        int width;
+    }Rectangle;
+
+    double rectangle_area(Rectangle * _this)
+    {
+        return (_this->length * _this->width);
+    }
+    void rectangle_draw()
+	  {
+    	  printf("*********\n");	
+    		printf("*       *\n");
+    		printf("*       *\n");
+    		printf("*********\n");
+  	}
+   	void rectangle_myPrint(Rectangle * _this)
+    {
+		    printf("length: %d, width: %d\n", _this->length, _this->width);
+	  }
+
+    VirtualMethodPointer Rectangle_VTable [] =
+    {
+        (VirtualMethodPointer)rectangle_area,
+        (VirtualMethodPointer)rectangle_draw,
+        (VirtualMethodPointer)rectangle_myPrint
+    };
+
+    Rectangle * Rectangle_Rectangle(Rectangle * _this,char *_newName,int l, int w)
+    {
+        Square_Square((Square *)_this, _newName, l);        
+        _this->VPointer = Rectangle_VTable; 
+        _this->width = w;
+        return _this;
+    }    
+
+int main()
+{
+    Shape * a [] = {
+     
+        (Shape *)Triangle_Triangle((Triangle *)malloc(sizeof(Triangle)),
+            "FirstTriangle", 5,5),
+        (Shape *)Triangle_Triangle((Triangle *)malloc(sizeof(Triangle)),
+            "secondTriangle", 4,3),   
+        (Shape *)Circle_Circle((Circle *)malloc(sizeof(Circle)),
+            "FirstCircle", 5),
+        (Shape *)Circle_Circle((Circle *)malloc(sizeof(Circle)),
+            "FirstCircle", 10),  
+        (Shape *)Square_Square((Square *)malloc(sizeof(Square)),
+            "FirstSquare", 5),   
+        (Shape *)Square_Square((Square *)malloc(sizeof(Square)),
+            "secondSquare", 10),
+        (Shape *)Rectangle_Rectangle((Rectangle *)malloc(sizeof(Rectangle)),
+            "FirstRectangle", 4, 8),  
+        (Shape *)Rectangle_Rectangle((Rectangle *)malloc(sizeof(Rectangle)),
+            "secondRecatangle", 8, 4)                                                       
+        };
+        double area = 0; 
+        for (int i=0; i<sizeof(a)/sizeof(*a); i++)
+        {
+            area = area + (a[i]->VPointer[0])(a[i]);
+            a[i]->VPointer[1](a[i]);
+            a[i]->VPointer[2](a[i]);
+        }
+        
+        printf("\nTotal Area = %f\n", area);
+        
+        for (int i=0; i<sizeof(a)/sizeof(*a); i++)
+        {
+            free(a[i]);
+        }
+}
